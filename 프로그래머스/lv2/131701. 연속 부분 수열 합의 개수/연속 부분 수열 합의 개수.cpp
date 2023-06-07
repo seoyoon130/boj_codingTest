@@ -7,12 +7,22 @@ int solution(vector<int> elements) {
     int n = elements.size();
     unordered_set<int> sums; // 부분 수열의 합을 저장하기 위한 set
 
-    // 모든 가능한 연속 부분 수열을 생성하여 합을 계산
     for (int i = 0; i < n; i++) {
-        int sum = 0;
-        for (int j = i; j < i + n; j++) {
-            sum += elements[j % n]; // 원형 수열에서 인덱스 계산을 위해 j % n 사용
+        int left = i; // 왼쪽 포인터
+        int right = i; // 오른쪽 포인터
+        int sum = 0; // 현재 연속 부분 수열의 합
+
+        // 투포인터를 이용하여 모든 연속 부분 수열의 합을 계산
+        while (true) {
+            sum += elements[right];
             sums.insert(sum);
+
+            // 오른쪽 포인터를 한 칸 이동
+            right = (right + 1) % n;
+
+            // 원형 수열에서 더 이상 연속 부분 수열을 만들 수 없는 경우 종료
+            if (right == i)
+                break;
         }
     }
 
