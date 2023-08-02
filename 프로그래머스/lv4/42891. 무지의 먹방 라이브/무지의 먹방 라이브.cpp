@@ -1,38 +1,32 @@
-#include <bits/stdc++.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <algorithm>
 using namespace std;
-bool compare(pair<int, int> a, pair<int, int> b){
-    return a.second < b.second;
-}
+
 int solution(vector<int> food_times, long long k) {
-    //만약 전체 음식을 먹는 시간보다 k가 크거나 같다면 -1
-    long long summary = 0;
-    for(int i = 0;i<food_times.size();i++){
-        summary += food_times[i];
+   int n = food_times.size();
+    vector<pair<int, int>> foods; // 음식 시간과 인덱스를 저장하는 벡터
+    for (int i = 0; i < n; ++i) {
+        foods.push_back(make_pair(food_times[i], i + 1));
     }
-    if(summary<=k) return -1;
-    priority_queue<pair<int, int>> pq;
-    for(int i = 0;i<food_times.size();i++){
-        pq.push({-food_times[i], i+1});
+    sort(foods.begin(), foods.end()); // 음식 시간을 기준으로 정렬
+
+    int prev_time = 0;
+    for (int i = 0; i < n; ++i) {
+        long long diff = (long long)(foods[i].first - prev_time) * (n - i);
+        if (diff <= k) {
+            k -= diff;
+            prev_time = foods[i].first;
+        } else {
+            vector<pair<int, int>> subfoods;
+            for (int j = i; j < n; ++j) {
+                subfoods.push_back(make_pair(foods[j].second, foods[j].first));
+            }
+            sort(subfoods.begin(), subfoods.end()); // 남은 음식을 번호 순서대로 정렬
+            return subfoods[k % (n - i)].first; // 남은 음식 중에서 k번째 음식의 번호 반환
+        }
     }
-    summary = 0;
-    long long previous = 0;
-    long long length = food_times.size();
-    
-    while(summary+((-pq.top().first-previous)*length)<=k){
-        int now = -pq.top().first;
-        pq.pop();
-        summary += (now-previous) *length;
-        length -=1;
-        previous = now;
-    }
-    vector<pair<int, int>> result;
-    while(!pq.empty()){
-        int food_time = -pq.top().first;
-        int num = pq.top().second;
-        pq.pop();
-        result.push_back({food_time, num});
-    }
-    sort(result.begin(), result.end(), compare);
-    return result[(k-summary)%length].second;
-    
+
+    return -1; // 더 이상 처리할 음식이 없는 경우
 }
