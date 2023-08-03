@@ -5,28 +5,32 @@ using namespace std;
 
 int solution(string s) {
     int answer = s.size();
-    
-    for(int i = 1;i<=s.size()/2;i++){
+    for(int step = 1;step<s.size()/2+1;step++){
+        string comp = "";
+        //step 만큼 추출
+        string prev = s.substr(0, step);
         int cnt = 1;
-        string a = s.substr(0, i);
-        //일시 저장값
-        string temp = "";
-        for(int j = i;j<s.size();j+=i){
-            //같으면 cnt ++
-            if(a==s.substr(j, i)) cnt++;
-            //다르면 압축이 불가하기 때문에
-            //cnt를 문자열로 바꿔 일시 저장
+        for(int j = step;j<s.size();j+=step){
+            if(prev == s.substr(j, step)) cnt++;
             else{
-                if(cnt>1) temp += to_string(cnt);
-                temp += a;
-                a = s.substr(j, i);
+                if(cnt>=2){
+                    comp += to_string(cnt)+prev;
+                }
+                else{
+                    comp += prev;
+                }
+                //다시 상태 초기화 후 
+                prev = s.substr(j, step);
                 cnt = 1;
             }
         }
-        if(cnt>1) temp += to_string(cnt);
-        temp+=a;
-        if(answer>temp.size()) answer = temp.size();
+        if(cnt>=2){
+            comp += to_string(cnt)+prev;
+        }
+        else{
+            comp += prev;
+        }
+        answer = min(answer, (int)comp.size());
     }
-    
     return answer;
 }
