@@ -1,32 +1,33 @@
 #include <string>
 #include <vector>
-#include <iostream>
 #include <algorithm>
 using namespace std;
-
+bool comp(pair<int, int> a, pair<int, int> b){
+    return a.second<b.second;
+}
 int solution(vector<int> food_times, long long k) {
-   int n = food_times.size();
-    vector<pair<int, int>> foods; // 음식 시간과 인덱스를 저장하는 벡터
-    for (int i = 0; i < n; ++i) {
-        foods.push_back(make_pair(food_times[i], i + 1));
+    int n = food_times.size();
+    vector<pair<int, int>> foods;
+    for(int i = 0;i<n;i++){
+        foods.push_back(make_pair(food_times.at(i), i+1));
     }
-    sort(foods.begin(), foods.end()); // 음식 시간을 기준으로 정렬
-
-    int prev_time = 0;
-    for (int i = 0; i < n; ++i) {
-        long long diff = (long long)(foods[i].first - prev_time) * (n - i);
-        if (diff <= k) {
-            k -= diff;
-            prev_time = foods[i].first;
-        } else {
-            vector<pair<int, int>> subfoods;
-            for (int j = i; j < n; ++j) {
-                subfoods.push_back(make_pair(foods[j].second, foods[j].first));
-            }
-            sort(subfoods.begin(), subfoods.end()); // 남은 음식을 번호 순서대로 정렬
-            return subfoods[k % (n - i)].first; // 남은 음식 중에서 k번째 음식의 번호 반환
+    //푸드 시간 별로 정렬 (오름차순)
+    sort(foods.begin(), foods.end());
+    
+    int pretime = 0;
+    for(auto it = foods.begin(); it!=foods.end(); ++it, --n){
+        //곱하기 때문에 범위를 벗어날 수 있으므로
+        long long spend = (long long)(it->first - pretime) * n;
+        if(spend == 0)continue;
+        if(spend<=k){
+            k-=spend;
+            pretime = it->first;
+        }else {
+            k %=n;
+            sort(it, foods.end(), comp);
+            return (it+k)->second;
         }
+        
     }
-
-    return -1; // 더 이상 처리할 음식이 없는 경우
+    return -1;
 }
